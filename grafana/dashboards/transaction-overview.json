@@ -1,0 +1,155 @@
+{
+  "uid": "transaction-overview",
+  "title": "Transaction Analytics",
+  "tags": [
+    "transactions"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Transaction count (last minute)",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "transactions-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(SUM(transaction_count),0) AS value FROM transaction_aggregates WHERE window_start >= NOW()-INTERVAL '1 minute'"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Amount (last minute)",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "transactions-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(SUM(total_amount),0) AS value FROM transaction_aggregates WHERE window_start >= NOW()-INTERVAL '1 minute'"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Transactions per minute",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "transactions-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT window_start AS time,SUM(transaction_count) AS transactions FROM transaction_aggregates WHERE $__timeFilter(window_start) GROUP BY window_start ORDER BY window_start"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Amount per minute",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "transactions-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT window_start AS time,SUM(total_amount) AS amount FROM transaction_aggregates WHERE $__timeFilter(window_start) GROUP BY window_start ORDER BY window_start"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "barchart",
+      "title": "Volume by country",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "transactions-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT dimension_value AS country,SUM(transaction_count) AS transactions FROM transaction_aggregates WHERE dimension_type='COUNTRY' AND $__timeFilter(window_start) GROUP BY dimension_value ORDER BY transactions DESC"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "table",
+      "title": "Merchant performance",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "transactions-postgres"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT dimension_value AS merchant,SUM(transaction_count) AS transactions,ROUND(SUM(total_amount),2) AS amount,SUM(approved_count) AS approved,SUM(declined_count) AS declined FROM transaction_aggregates WHERE dimension_type='MERCHANT' AND $__timeFilter(window_start) GROUP BY dimension_value ORDER BY transactions DESC"
+        }
+      ]
+    }
+  ]
+}

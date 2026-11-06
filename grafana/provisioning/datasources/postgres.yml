@@ -1,0 +1,15 @@
+apiVersion: 1
+datasources:
+  - name: Transactions PostgreSQL
+    uid: transactions-postgres
+    type: postgres
+    access: proxy
+    url: postgres:5432
+    user: transactions
+    secureJsonData:
+      password: transactions_dev_password
+    jsonData:
+      database: transactions
+      sslmode: disable
+      postgresVersion: 1700
+    isDefault: true

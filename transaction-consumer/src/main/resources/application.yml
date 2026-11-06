@@ -1,0 +1,12 @@
+spring:
+  application.name: transaction-consumer
+  r2dbc:
+    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://localhost:5432/transactions}
+    username: ${SPRING_R2DBC_USERNAME:transactions}
+    password: ${SPRING_R2DBC_PASSWORD:transactions_dev_password}
+  main.web-application-type: reactive
+app.kafka:
+  bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  aggregated-topic: ${APP_KAFKA_AGGREGATED_TOPIC:transactions.aggregated}
+  group-id: transaction-postgres-writer
+management.endpoints.web.exposure.include: health,info,metrics

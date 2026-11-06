@@ -1,0 +1,20 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: transaction-simulator
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+        linger.ms: 5
+        batch.size: 65536
+app:
+  kafka:
+    raw-topic: ${APP_KAFKA_RAW_TOPIC:transactions.raw}
+management:
+  endpoints.web.exposure.include: health,info,metrics
